@@ -2,4 +2,10 @@
     <string name="app_name">Instagram</string>
     <string name="log_in">Log in</string>
     <string name="register">Register</string>
+    <string name="username">Username</string>
+    <string name="full_name">Full name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="REGISTER">REGISTER</string>
+    <string name="already_a_user_login">Already a user? Login</string>
 </resources>
