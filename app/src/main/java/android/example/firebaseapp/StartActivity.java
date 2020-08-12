@@ -1,5 +1,6 @@
 package android.example.firebaseapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -28,11 +29,24 @@ public class StartActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.register);
 
         linearLayout.animate().alpha(0f).setDuration(1);
-
         TranslateAnimation animation = createAnimation();
-
         iconImage.setAnimation(animation);
 
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(StartActivity.this, RegisterActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            }
+        });
+
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(StartActivity.this, LoginActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            }
+        });
     }
 
     private TranslateAnimation createAnimation() {
@@ -46,7 +60,8 @@ public class StartActivity extends AppCompatActivity {
     private class MyAnimationListener implements Animation.AnimationListener {
 
         @Override
-        public void onAnimationStart(Animation animation) { }
+        public void onAnimationStart(Animation animation) {
+        }
 
         @Override
         public void onAnimationEnd(Animation animation) {
@@ -56,6 +71,7 @@ public class StartActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onAnimationRepeat(Animation animation) { }
+        public void onAnimationRepeat(Animation animation) {
+        }
     }
 }
