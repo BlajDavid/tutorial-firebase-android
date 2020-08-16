@@ -99,7 +99,8 @@ public class RegisterActivity extends AppCompatActivity {
                 map.put("fullName", fullName);
                 map.put("email", email);
                 map.put("id", Objects.requireNonNull(auth.getCurrentUser()).getUid());
-
+                map.put("bio", "");
+                map.put("imageUrl", "default");
                 databaseReference
                         .child("users")
                         .child(auth.getCurrentUser().getUid())
