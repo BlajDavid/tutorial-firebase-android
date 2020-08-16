@@ -82,6 +82,7 @@ public class RegisterActivity extends AppCompatActivity {
                 } else {
                     registerUser(username, fullName, email, password);
                 }
+
             }
         });
 
