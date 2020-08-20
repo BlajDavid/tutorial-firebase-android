@@ -20,4 +20,6 @@
     <string name="profile_notification">Notification Fragment</string>
     <string name="search_fragment">Search Fragment</string>
     <string name="post">POST</string>
+    <string name="search">Search...</string>
+    <string name="fullname">Full name</string>
 </resources>

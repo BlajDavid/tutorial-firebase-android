@@ -11,8 +11,11 @@ import android.example.firebaseapp.fragments.ProfileFragment;
 import android.example.firebaseapp.fragments.SearchFragment;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,5 +62,16 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
 
+    }
+
+    // TODO - numele userul-ui cand ma logheaza automat
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            Toast.makeText(MainActivity.this, "user: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+        }
     }
 }
