@@ -1,5 +1,6 @@
 package android.example.firebaseapp.fragments;
 
+import android.example.firebaseapp.adapter.TagAdapter;
 import android.example.firebaseapp.adapter.UserAdapter;
 import android.example.firebaseapp.model.User;
 import android.os.Bundle;
@@ -30,9 +31,14 @@ import java.util.List;
 
 public class SearchFragment extends Fragment {
 
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerViewUsers;
     private List<User> mUsers;
     private UserAdapter userAdapter;
+
+    private RecyclerView recyclerViewTags;
+    private List<String> mHashTags;
+    private List<String> mHashTagsCount;
+    private TagAdapter tagAdapter;
 
     private SocialAutoCompleteTextView searchBar;
 
@@ -41,17 +47,13 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-        recyclerView = view.findViewById(R.id.recycler_view_users);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        mUsers = new ArrayList<>();
-        userAdapter = new UserAdapter(getContext(), mUsers, true);
-        recyclerView.setAdapter(userAdapter);
+        initializeUsers(view);
+        initializeTags(view);
 
         searchBar = view.findViewById(R.id.search_bar);
 
         readUsers();
+        readTags();
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -73,19 +75,60 @@ public class SearchFragment extends Fragment {
         return view;
     }
 
+    private void initializeUsers(View view) {
+        recyclerViewUsers = view.findViewById(R.id.recycler_view_users);
+        recyclerViewUsers.setHasFixedSize(true);
+        recyclerViewUsers.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        mUsers = new ArrayList<>();
+        userAdapter = new UserAdapter(getContext(), mUsers, true);
+        recyclerViewUsers.setAdapter(userAdapter);
+    }
+
+    private void initializeTags(View view) {
+        recyclerViewTags = view.findViewById(R.id.recycler_view_tags);
+        recyclerViewTags.setHasFixedSize(true);
+        recyclerViewTags.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        mHashTags = new ArrayList<>();
+        mHashTagsCount = new ArrayList<>();
+        tagAdapter = new TagAdapter(getContext(), mHashTags, mHashTagsCount);
+        recyclerViewTags.setAdapter(tagAdapter);
+    }
+
     private void readUsers() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Users");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(TextUtils.isEmpty(searchBar.getText().toString())) {
+                if (TextUtils.isEmpty(searchBar.getText().toString())) {
                     mUsers.clear();
-                    for(DataSnapshot snap: snapshot.getChildren()) {
+                    for (DataSnapshot snap : snapshot.getChildren()) {
                         User user = snap.getValue(User.class);
                         mUsers.add(user);
                     }
                     userAdapter.notifyDataSetChanged();
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void readTags() {
+        FirebaseDatabase.getInstance().getReference().child("HashTags").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                mHashTags.clear();
+                mHashTagsCount.clear();
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    mHashTags.add(snap.getKey());
+                    mHashTagsCount.add(snap.getChildrenCount() + "");
+                }
+                tagAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -102,7 +145,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 mUsers.clear();
-                for(DataSnapshot snap: snapshot.getChildren()) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
                     User user = snap.getValue(User.class);
                     mUsers.add(user);
                 }
