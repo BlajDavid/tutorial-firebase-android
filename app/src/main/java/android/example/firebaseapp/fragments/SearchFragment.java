@@ -1,22 +1,21 @@
 package android.example.firebaseapp.fragments;
 
+import android.example.firebaseapp.R;
 import android.example.firebaseapp.adapter.TagAdapter;
 import android.example.firebaseapp.adapter.UserAdapter;
 import android.example.firebaseapp.model.User;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.example.firebaseapp.R;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -68,7 +67,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                filter(editable.toString());
             }
         });
 
@@ -159,4 +158,17 @@ public class SearchFragment extends Fragment {
         });
     }
 
+    private void filter(String text) {
+        List<String> mSearchTags = new ArrayList<>();
+        List<String> mSearchTagsCount = new ArrayList<>();
+
+        for (String s : mHashTags) {
+            if (s.toLowerCase().contains(text.toLowerCase())) {
+                mSearchTags.add(s);
+                mSearchTagsCount.add(mHashTagsCount.get(mHashTags.indexOf(s)));
+            }
+        }
+
+        tagAdapter.filter(mSearchTags, mSearchTagsCount);
+    }
 }

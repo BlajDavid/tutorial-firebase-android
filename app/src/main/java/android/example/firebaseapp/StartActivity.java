@@ -52,15 +52,15 @@ public class StartActivity extends AppCompatActivity {
         });
     }
 
-   /* @Override
+    @Override
     protected void onStart() {
         super.onStart();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
+        if (user != null) {
             startActivity(new Intent(StartActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
         }
-    }*/
+    }
 
     private TranslateAnimation createAnimation() {
         TranslateAnimation animation = new TranslateAnimation(0, 0, 0, -1000);
