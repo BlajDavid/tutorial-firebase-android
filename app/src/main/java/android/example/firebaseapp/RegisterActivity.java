@@ -1,18 +1,16 @@
 package android.example.firebaseapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -26,12 +24,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static android.widget.Toast.*;
+import static android.widget.Toast.LENGTH_SHORT;
+import static android.widget.Toast.makeText;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText txtUsername;
-    private EditText txtFullName;
+    private EditText txtName;
     private EditText txtEmail;
     private EditText txtPassword;
     private Button btnRegister;
@@ -48,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         txtUsername = findViewById(R.id.username);
-        txtFullName = findViewById(R.id.fullName);
+        txtName = findViewById(R.id.fullName);
         txtEmail = findViewById(R.id.email);
         txtPassword = findViewById(R.id.password);
 
@@ -70,39 +69,37 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String username = txtUsername.getText().toString();
-                String fullName = txtFullName.getText().toString();
+                String name = txtName.getText().toString();
                 String email = txtEmail.getText().toString();
                 String password = txtPassword.getText().toString();
 
-                if (TextUtils.isEmpty(username) || TextUtils.isEmpty(fullName) ||
+                if (TextUtils.isEmpty(username) || TextUtils.isEmpty(name) ||
                         TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
                     makeText(RegisterActivity.this, "Empty credentials", LENGTH_SHORT).show();
                 } else if (password.length() < 6) {
                     makeText(RegisterActivity.this, "Password too short", LENGTH_SHORT).show();
                 } else {
-                    registerUser(username, fullName, email, password);
+                    registerUser(username, name, email, password);
                 }
-
             }
         });
-
     }
 
-    private void registerUser(final String username, final String fullName, final String email, String password) {
+    private void registerUser(final String username, final String name, final String email, String password) {
         progressDialog.setMessage("Please wait");
         progressDialog.show();
         auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
                 HashMap<String, Object> map = new HashMap<>();
+                map.put("name", name);
                 map.put("username", username);
-                map.put("fullName", fullName);
                 map.put("email", email);
                 map.put("id", Objects.requireNonNull(auth.getCurrentUser()).getUid());
                 map.put("bio", "");
                 map.put("imageUrl", "default");
                 databaseReference
-                        .child("users")
+                        .child("Users")
                         .child(auth.getCurrentUser().getUid())
                         .setValue(map)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {

@@ -63,15 +63,14 @@
             android:src="@mipmap/ic_launcher" />
 
         <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
+            android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:hint="@string/description"
             android:maxLines="5"
-            android:id="@+id/description"
-            app:socialFlags="hashtag|mention"
             app:hashtagColor="@color/colorPrimary"
-            />
+            app:socialFlags="hashtag|mention" />
 
     </LinearLayout>
 
