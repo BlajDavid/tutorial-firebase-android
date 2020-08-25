@@ -44,5 +44,6 @@
         android:layout_centerVertical="true"
         android:background="@drawable/button_background"
         android:textColor="@color/colorPrimary"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:textAllCaps="false"/>
 </RelativeLayout>
