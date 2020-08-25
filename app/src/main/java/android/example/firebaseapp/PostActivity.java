@@ -115,8 +115,9 @@ public class PostActivity extends AppCompatActivity {
                             map.clear();
                             map.put("tag", tag.toLowerCase());
                             map.put("postId", postId);
-
-                            mHashtagRef.child(tag.toLowerCase()).setValue(map);
+                            // aici facea override in baza de date si am adaugat .child(postId), pentru a adauga tag-ul
+                            // la lista deja existenta
+                            mHashtagRef.child(tag.toLowerCase()).child(postId).setValue(map);
                         }
                     }
                     progressDialog.dismiss();
