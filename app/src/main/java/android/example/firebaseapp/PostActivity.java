@@ -1,36 +1,42 @@
 package android.example.firebaseapp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
+import com.hendraanggrian.appcompat.socialview.Hashtag;
+import com.hendraanggrian.appcompat.widget.HashtagArrayAdapter;
 import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.HashMap;
 import java.util.List;
 
-import static android.widget.Toast.*;
+import static android.widget.Toast.LENGTH_SHORT;
+import static android.widget.Toast.makeText;
 
 public class PostActivity extends AppCompatActivity {
 
@@ -110,13 +116,14 @@ public class PostActivity extends AppCompatActivity {
 
                     DatabaseReference mHashtagRef = FirebaseDatabase.getInstance().getReference().child("HashTags");
                     List<String> hashTags = txtDescription.getHashtags();
-                    if(!hashTags.isEmpty()) {
-                        for (String tag: hashTags) {
+                    if (!hashTags.isEmpty()) {
+                        for (String tag : hashTags) {
                             map.clear();
                             map.put("tag", tag.toLowerCase());
                             map.put("postId", postId);
-
-                            mHashtagRef.child(tag.toLowerCase()).setValue(map);
+                            // aici facea override in baza de date si am adaugat .child(postId), pentru a adauga tag-ul
+                            // la lista deja existenta
+                            mHashtagRef.child(tag.toLowerCase()).child(postId).setValue(map);
                         }
                     }
                     progressDialog.dismiss();
@@ -152,5 +159,28 @@ public class PostActivity extends AppCompatActivity {
             startActivity(new Intent(PostActivity.this, MainActivity.class));
             finish();
         }
+    }
+
+    // aici voi afisa lista cu tag-urile deja existente, atunci cand vreau sa adaug un tag la un post.
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        final ArrayAdapter<Hashtag> hashtagArrayAdapter = new HashtagArrayAdapter<>(getApplicationContext());
+
+        FirebaseDatabase.getInstance().getReference().child("HashTags").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    hashtagArrayAdapter.add(new Hashtag(snap.getKey(), (int) snap.getChildrenCount()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        txtDescription.setHashtagAdapter(hashtagArrayAdapter);
     }
 }

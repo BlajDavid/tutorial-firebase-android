@@ -50,10 +50,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        User user = mUsers.get(position);
+        final User user = mUsers.get(position);
         holder.btnFollow.setVisibility(View.VISIBLE);
 
         holder.username.setText(user.getUsername());
@@ -67,6 +67,46 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         if (user.getId().equals(firebaseUser.getUid())) {
             holder.btnFollow.setVisibility(View.GONE);
         }
+
+        holder.btnFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.btnFollow.getText().toString().equals("Follow")) {
+                    FirebaseDatabase.getInstance().getReference()
+                            // 1. se creează un branch numit "Follow".
+                            .child("Follow")
+                            // 2. "Follow" va avea un alt branch care este id-ul user-ului curent.
+                            .child(firebaseUser.getUid())
+                            // 3.  user id-ul(de exemplu: MF_wXkGijYWN78DfO2v) va avea un branch numit "following"
+                            .child("following")
+                            // 4. "following" va avea și el un branch cu id-ul user-ului pe care îl urmărim deja.
+                            .child(user.getId())
+                            .setValue(true);
+
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("Follow")
+                            .child(user.getId())
+                            .child("followers")
+                            .child(firebaseUser.getUid())
+                            .setValue(true);
+                } else {
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("Follow")
+                            .child(firebaseUser.getUid())
+                            .child("following")
+                            .child(user.getId())
+                            .removeValue();
+
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("Follow")
+                            .child(user.getId())
+                            .child("followers")
+                            .child(firebaseUser.getUid())
+                            .removeValue();
+                }
+            }
+        });
+
     }
 
     private void isFollowed(final String id, final Button btnFollow) {
@@ -79,7 +119,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.child(id).exists()) {
-                    btnFollow.setText("Already following");
+                    btnFollow.setText("Following");
                 } else {
                     btnFollow.setText("Follow");
                 }
