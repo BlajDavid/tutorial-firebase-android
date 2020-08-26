@@ -1,6 +1,8 @@
 package android.example.firebaseapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.example.firebaseapp.CommentActivity;
 import android.example.firebaseapp.R;
 import android.example.firebaseapp.model.Post;
 import android.example.firebaseapp.model.User;
@@ -75,7 +77,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         isLiked(post.getPostId(), holder.like);
         countNumberOfLikes(post.getPostId(), holder.numberOfLikes);
-
+        countNumberOfComments(post.getPostId(), holder.numberOfComments);
         holder.like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,6 +94,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                             .child(firebaseUser.getUid())
                             .removeValue();
                 }
+            }
+        });
+
+        holder.comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, CommentActivity.class);
+                intent.putExtra("postId", post.getPostId());
+                intent.putExtra("authorId", post.getPublisher());
+                mContext.startActivity(intent);
+            }
+        });
+
+        holder.numberOfComments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, CommentActivity.class);
+                intent.putExtra("postId", post.getPostId());
+                intent.putExtra("authorId", post.getPublisher());
+                mContext.startActivity(intent);
             }
         });
 
@@ -132,6 +154,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 text.setText(snapshot.getChildrenCount() + " likes");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void countNumberOfComments(String postId, final TextView text) {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Comments")
+                .child(postId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                text.setText(snapshot.getChildrenCount() + " comments");
             }
 
             @Override

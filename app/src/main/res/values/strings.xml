@@ -22,4 +22,5 @@
     <string name="post">POST</string>
     <string name="search">Search...</string>
     <string name="fullname">Full name</string>
+    <string name="add_a_comment">Add a comment...</string>
 </resources>
