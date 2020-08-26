@@ -1,6 +1,8 @@
 package android.example.firebaseapp;
 
 import android.content.Intent;
+import android.example.firebaseapp.adapter.CommentAdapter;
+import android.example.firebaseapp.model.Comment;
 import android.example.firebaseapp.model.User;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,7 +26,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -37,6 +43,11 @@ public class CommentActivity extends AppCompatActivity {
 
     private String postId;
     private String authorId;
+
+    private RecyclerView rvComments;
+    private CommentAdapter commentAdapter;
+    private List<Comment> comments;
+
 
     FirebaseUser firebaseUser;
 
@@ -58,6 +69,15 @@ public class CommentActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        rvComments = findViewById(R.id.recycler_view_comments);
+        rvComments.setHasFixedSize(true);
+        rvComments.setLayoutManager(new LinearLayoutManager(this));
+
+        comments = new ArrayList<>();
+        commentAdapter = new CommentAdapter(this, comments);
+
+        rvComments.setAdapter(commentAdapter);
 
         etComment = findViewById(R.id.add_comment);
         profileImage = findViewById(R.id.profile_image);
@@ -82,6 +102,8 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
 
+        getComments();
+
     }
 
     private void getUserImage() {
@@ -96,6 +118,29 @@ public class CommentActivity extends AppCompatActivity {
                 } else {
                     Picasso.get().load(user.getImageUrl()).into(profileImage);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void getComments() {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Comments")
+                .child(postId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                comments.clear();
+                for(DataSnapshot snap: snapshot.getChildren()) {
+                    Comment comment = snap.getValue(Comment.class);
+                    comments.add(comment);
+                }
+
+                commentAdapter.notifyDataSetChanged();
+
             }
 
             @Override
