@@ -1,19 +1,20 @@
 package android.example.firebaseapp.fragments;
 
+import android.content.Context;
+import android.example.firebaseapp.R;
 import android.example.firebaseapp.model.Post;
 import android.example.firebaseapp.model.User;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.example.firebaseapp.R;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +38,8 @@ public class ProfileFragment extends Fragment {
     private TextView txtFullName;
     private TextView txtBio;
 
+    private Button btnEditProfile;
+
     private ImageButton imgMyPictures;
     private ImageButton imgSavedPictures;
 
@@ -50,7 +53,16 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        profileId = firebaseUser.getUid();
+
+        String data = getContext().getSharedPreferences("SharedPreferencesProfile", Context.MODE_PRIVATE).getString("profileId", "none");
+
+        if (data.equals("none")) {
+            profileId = firebaseUser.getUid();
+
+        } else {
+            profileId = data;
+        }
+
 
         profileImage = view.findViewById(R.id.profile_image);
         imgOptions = view.findViewById(R.id.options);
@@ -62,14 +74,65 @@ public class ProfileFragment extends Fragment {
         txtBio = view.findViewById(R.id.bio);
         imgMyPictures = view.findViewById(R.id.my_pictures);
         imgSavedPictures = view.findViewById(R.id.saved_pictures);
-
+        btnEditProfile = view.findViewById(R.id.edit_profile);
 
         getUserInfo();
         countFollowersAndPersonsFollowing();
         countNumberOfPosts();
 
+        if (profileId.equals(firebaseUser.getUid())) {
+            btnEditProfile.setVisibility(View.VISIBLE);
+        } else {
+            checkFollowingStatus();
+        }
+
+        btnEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = btnEditProfile.getText().toString();
+
+                if (text.equals("Edit profile")) {
+                    // TODO edit activity
+                } else {
+                    if (text.equals("Follow")) {
+                        FirebaseDatabase.getInstance().getReference().child("Follow")
+                                .child(firebaseUser.getUid()).child("following").child(profileId).setValue(true);
+                        FirebaseDatabase.getInstance().getReference().child("Follow")
+                                .child(profileId).child("followers").child(firebaseUser.getUid()).setValue(true);
+                    } else if (text.equals("Following")) {
+                        FirebaseDatabase.getInstance().getReference().child("Follow")
+                                .child(firebaseUser.getUid()).child("following").child(profileId).removeValue();
+                        FirebaseDatabase.getInstance().getReference().child("Follow")
+                                .child(profileId).child("followers").child(firebaseUser.getUid()).removeValue();
+                    }
+                }
+            }
+        });
+
 
         return view;
+    }
+
+    private void checkFollowingStatus() {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Follow")
+                .child(firebaseUser.getUid())
+                .child("following").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(profileId).exists()) {
+                    btnEditProfile.setText("Following");
+                } else {
+                    btnEditProfile.setText("Follow");
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void getUserInfo() {

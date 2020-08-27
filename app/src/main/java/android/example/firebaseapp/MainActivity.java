@@ -10,6 +10,7 @@ import android.example.firebaseapp.fragments.NotificationFragment;
 import android.example.firebaseapp.fragments.ProfileFragment;
 import android.example.firebaseapp.fragments.SearchFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
 
-                if(selectorFragment != null) {
+                if (selectorFragment != null) {
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectorFragment).commit();
                 }
 
@@ -60,8 +61,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        // Aici verificăm dacă vreun intent ne-a transmis ceva extra infroamții.
+        // "Bundle" = pachet
+        Bundle intent = getIntent().getExtras();
+        if (intent != null) {
+            String profileId = intent.getString("publisherId");
 
+            assert profileId != null;
+            Log.e("Profile id extracted ", profileId);
+
+            getSharedPreferences("SharedPreferencesProfile", MODE_PRIVATE).edit().putString("profileId", profileId).apply();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment()).commit();
+            bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        }
     }
 
     // TODO - numele userul-ui cand ma logheaza automat
@@ -70,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
+        if (user != null) {
             Toast.makeText(MainActivity.this, "user: " + user.getEmail(), Toast.LENGTH_SHORT).show();
         }
     }
