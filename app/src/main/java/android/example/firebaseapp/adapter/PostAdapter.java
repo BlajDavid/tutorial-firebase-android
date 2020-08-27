@@ -78,6 +78,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         isLiked(post.getPostId(), holder.like);
         countNumberOfLikes(post.getPostId(), holder.numberOfLikes);
         countNumberOfComments(post.getPostId(), holder.numberOfComments);
+        isSaved(post.getPostId(), holder.save);
+
         holder.like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,6 +116,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 intent.putExtra("postId", post.getPostId());
                 intent.putExtra("authorId", post.getPublisher());
                 mContext.startActivity(intent);
+            }
+        });
+
+        holder.save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (holder.save.getTag().equals("save")) {
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("Saves")
+                            .child(firebaseUser.getUid())
+                            .child(post.getPostId()).setValue(true);
+                } else {
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("Saves")
+                            .child(firebaseUser.getUid())
+                            .child(post.getPostId()).removeValue();
+                }
             }
         });
 
@@ -178,6 +197,29 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             }
         });
     }
+
+    private void isSaved(final String postId, final ImageView image) {
+        FirebaseDatabase.getInstance().getReference()
+                .child("Saves")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.child(postId).exists()) {
+                    image.setImageResource(R.drawable.ic_save_black);
+                    image.setTag("saved");
+                } else {
+                    image.setImageResource(R.drawable.ic_save);
+                    image.setTag("save");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
