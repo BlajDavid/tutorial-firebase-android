@@ -71,7 +71,9 @@ public class HomeFragment extends Fragment {
                 for (DataSnapshot snap : snapshot.getChildren()) {
                     followingList.add(snap.getKey());
                 }
-
+                // in lista de following punem si user-ul curent pentru ca sa vad pe homepage
+                // si postarile mele.
+                followingList.add(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 readPosts();
 
             }

@@ -1,6 +1,8 @@
 package android.example.firebaseapp.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.example.firebaseapp.EditProfileActivity;
 import android.example.firebaseapp.R;
 import android.example.firebaseapp.adapter.PhotoAdapter;
 import android.example.firebaseapp.model.Post;
@@ -125,7 +127,7 @@ public class ProfileFragment extends Fragment {
                 String text = btnEditProfile.getText().toString();
 
                 if (text.equals("Edit profile")) {
-                    // TODO edit activity
+                    startActivity(new Intent(getContext(), EditProfileActivity.class));
                 } else {
                     if (text.equals("Follow")) {
                         FirebaseDatabase.getInstance().getReference().child("Follow")

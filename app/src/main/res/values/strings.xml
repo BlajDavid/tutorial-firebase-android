@@ -28,5 +28,8 @@
     <string name="add_a_comment">Add a comment...</string>
     <string name="edit_profile">Edit profile</string>
     <string name="photo">Photo</string>
+    <string name="save">Save</string>
+    <string name="change_photo">Change photo</string>
+    <string name="bio">Bio</string>
 
 </resources>
