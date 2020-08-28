@@ -53,6 +53,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
                         .commit();
             }
         });
+
+        holder.postImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mContext.getSharedPreferences("SharedPreferencesPhoto", Context.MODE_PRIVATE)
+                        .edit()
+                        .putString("postId", post.getPostId())
+                        .apply();
+                ((FragmentActivity)mContext).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new PostDetailFragment())
+                        .commit();
+            }
+        });
+
     }
 
     @Override
